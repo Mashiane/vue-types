@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { defineComponent, createApp, h } from 'vue'
 import {
   any,
   func,
@@ -82,7 +82,7 @@ const objectOfTuple = objectOf(tupleType)
 
 const oneOfTuple = oneOf([1, 2, 'string'] as const).def(1)
 
-const UserComponent = Vue.extend({
+const UserComponent = defineComponent({
   props: {
     user: userType,
     message: messageType,
@@ -93,7 +93,7 @@ const UserComponent = Vue.extend({
   },
 })
 
-const UserProfile = Vue.extend({
+const UserProfile = defineComponent({
   props: {
     onClick: funcType,
     action: anyType,
@@ -102,6 +102,6 @@ const UserProfile = Vue.extend({
   },
 })
 
-new Vue({
-  render: (h) => h(UserComponent),
-})
+createApp({
+  setup: () => () => h(UserComponent),
+}).mount('#app')

@@ -1,4 +1,4 @@
-import Vue, { CreateElement } from 'vue'
+import { h, defineComponent, createApp } from 'vue'
 import Component from 'vue-class-component'
 import VueTypes, { VueTypeValidableDef } from 'vue-types'
 
@@ -126,7 +126,7 @@ myTypes.test.isRequired
 
 const a = myTypes.user.def({ name: 'xxx' })
 const str = myTypes.string
-const NativeComponent = Vue.extend({
+const NativeComponent = defineComponent({
   props: {
     verified: boolType,
     funcProp: funcType,
@@ -140,7 +140,7 @@ const NativeComponent = Vue.extend({
   },
 })
 
-const OtherTypesComponent = Vue.extend({
+const OtherTypesComponent = defineComponent({
   props: {
     friends: ArrayOfType,
     user: userType,
@@ -155,19 +155,25 @@ const OtherTypesComponent = Vue.extend({
   },
 })
 
-new Vue({ render: (h) => h(OtherTypesComponent) })
-
-@Component
-class ClassComponent extends NativeComponent {
-  public msg = 10
-}
-
-new Vue({
-  render: (h: CreateElement) =>
-    h(ClassComponent, {
-      props: {
-        verified: true,
-        user: { ID: 10, name: 'me' },
-      },
-    }),
+const App = defineComponent({
+  setup() {
+    return () =>
+      h(
+        NativeComponent,
+        {
+          verified: true,
+          funcProp: () => true,
+          hobbies: [],
+          name: 'hello',
+          height: 100,
+          age: 20,
+          obj: {},
+          obj2: {},
+          uniqueSym: Symbol('a'),
+        },
+        [h(OtherTypesComponent)],
+      )
+  },
 })
+
+createApp(App).mount('#app')

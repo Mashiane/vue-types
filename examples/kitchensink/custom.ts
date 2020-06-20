@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp, defineComponent } from 'vue'
 import {
   createTypes,
   object,
@@ -55,7 +55,7 @@ class MyTypesClass extends createTypes({}) {
 const userGetter2 = MyTypesClass.user.isRequired
 const stringT = MyTypesClass.string.isRequired
 
-const UserComponent = Vue.extend({
+const UserComponent = defineComponent({
   props: {
     user: userGetterType,
     message: messageType,
@@ -64,6 +64,4 @@ const UserComponent = Vue.extend({
   },
 })
 
-new Vue({
-  render: (h) => h(UserComponent),
-})
+createApp(UserComponent).mount('#app')

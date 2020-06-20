@@ -1,6 +1,6 @@
 {
   "name": "vue-types",
-  "version": "2.0.0-alpha.1",
+  "version": "3.0.0-alpha.1",
   "description": "Prop types utility for Vue",
   "author": "Marco Solazzi",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "prepublishOnly": "npm run build",
     "build": "run-s build:clean build:ts build:umd",
     "build:clean": "del dist",
-    "build:ts": "microbundle --external=vue --tsconfig=./tsconfig.build.json --format=modern,esm,cjs",
+    "build:ts": "microbundle --external=vue --tsconfig=./tsconfig.build.json --format=modern,es,cjs",
     "build:umd": "cross-env NODE_ENV=production microbundle --external=vue --tsconfig=./tsconfig.build.json --format=umd",
     "test": "karma start karma.conf.js --single-run --browsers ChromeHeadless",
     "test:saucelab": "karma start karma-sauce.conf.js --single-run",
@@ -81,11 +81,11 @@
     "puppeteer": "3.0.2",
     "sirv-cli": "1.0.0",
     "typescript": "3.9.5",
-    "vue": "2.6.11",
     "vue-class-component": "7.2.3"
   },
   "dependencies": {
-    "is-plain-object": "3.0.0"
+    "is-plain-object": "3.0.0",
+    "vue": "3.0.0-beta.15"
   },
   "browserslist": [
     "last 3 versions",

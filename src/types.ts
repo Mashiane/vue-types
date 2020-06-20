@@ -1,11 +1,28 @@
-import { PropOptions, PropType } from 'vue'
+import { PropType } from 'vue'
+export { PropType }
+export type Prop<T = any> =
+  | {
+      new (...args: any[]): T & object
+    }
+  | {
+      (): T
+    }
+  | PropMethod<T>
 
-export { PropType, PropOptions }
+type PropMethod<T, TConstructor = any> = T extends (...args: any) => any
+  ? {
+      new (): TConstructor
+      (): T
+      readonly prototype: TConstructor
+    }
+  : never
 
-export type Prop<T> =
-  | { (): T }
-  | { new (...args: never[]): T & object }
-  | { new (...args: string[]): Function }
+export interface PropOptions<T = any> {
+  type?: PropType<T> | true | null
+  required?: boolean
+  default?: T | DefaultFactory<T> | null | undefined
+  validator?(value: unknown): boolean
+}
 
 export type NativeType = string | boolean | number | null | undefined | Function
 
@@ -72,7 +89,7 @@ export interface VueTypeLooseShape<T>
 }
 
 export interface VueTypesDefaults {
-  func: Function
+  func: (...args: any[]) => any
   bool: boolean
   string: string
   number: number

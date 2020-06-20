@@ -30,17 +30,18 @@ export default function oneOfType<
       if (
         isVueTypeDef<V>(type) &&
         type._vueTypes_name === 'oneOf' &&
-        type.type
+        type.type &&
+        type.type !== true
       ) {
-        nativeChecks = nativeChecks.concat(type.type)
+        nativeChecks = nativeChecks.concat(type.type as Prop<V>)
         continue
       }
       if (isFunction(type.validator)) {
         hasCustomValidators = true
         continue
       }
-      if (type.type) {
-        nativeChecks = nativeChecks.concat(type.type)
+      if (type.type && type.type !== true) {
+        nativeChecks = nativeChecks.concat(type.type as Prop<V>)
         continue
       }
     }
