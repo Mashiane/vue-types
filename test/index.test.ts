@@ -1,12 +1,8 @@
 import expect from 'expect'
-import Vue from 'vue'
 
 import { noop } from '../src/utils'
 import { VueTypeValidableDef, VueTypeDef } from '../src/types'
 import VueTypes from '../src/index'
-
-Vue.config.productionTip = false
-Vue.config.silent = true
 
 type VueTypesType = typeof VueTypes
 
