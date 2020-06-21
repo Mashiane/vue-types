@@ -1,45 +1,55 @@
-import Vue from 'vue'
-import VueTypes from 'vue-types'
+import { defineComponent, h, computed, ref, createApp } from 'vue'
+import { shape, string, bool } from 'vue-types'
 
-var Model = {
-  template: '<li>{{ model.id }} {{ isNew }}</li>',
-  props: {
-    model: VueTypes.shape({
-      id: VueTypes.string.isRequired,
-      isNew: VueTypes.bool,
-    }).isRequired,
-  },
-  computed: {
-    isNew() {
-      return this.model.isNew ? '- new' : ''
-    },
-  },
+interface Data {
+  id: string
+  isNew: boolean
 }
 
-new Vue({
-  template: `
-    <section>
-      <h1>A list of models</h1>
-      <button type="button" @click="addModel">Add model</button>
-      <ul><Model v-for="model in models" :model="model" :key="model.id" /></ul>
-    </section>
-  `,
-  data: {
-    models: [],
+const Model = defineComponent({
+  setup(props) {
+    const isNew = computed(() => (props.model.isNew ? '- new' : ''))
+    return () => h('li', [`${props.model.id} ${isNew.value}`])
   },
-  components: {
-    Model,
+  props: {
+    model: shape<Data>({
+      id: string().isRequired,
+      isNew: bool(),
+    }).isRequired,
   },
-  methods: {
-    addModel() {
-      const newId = 'model-' + this.models.length
-      this.models.forEach((model) => {
+})
+
+const ModelButton = defineComponent({
+  setup(props, { slots, attrs }) {
+    return () =>
+      h('button', { type: 'button', ...props, ...attrs }, slots.default())
+  },
+})
+
+const App = defineComponent({
+  setup() {
+    const models = ref<Data[]>([])
+
+    function addModel() {
+      models.value.forEach((model: any) => {
         model.isNew = false
       })
-      this.models.push({
-        id: newId,
+      models.value.push({
+        id: 'model-' + models.value.length,
         isNew: true,
       })
-    },
+    }
+    return () => {
+      return h('section', [
+        h('h1', ['A list of models']),
+        h(ModelButton, { onClick: addModel }, ['Add model']),
+        h(
+          'ul',
+          models.value.map((model) => h(Model, { model, key: model.id })),
+        ),
+      ])
+    }
   },
-}).$mount('#app')
+})
+
+createApp(App).mount('#app')

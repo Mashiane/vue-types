@@ -1,48 +1,48 @@
-import Vue from 'vue'
-import VueTypes, { VueTypeDef } from 'vue-types'
+import { createApp, defineComponent, h } from 'vue'
+import VueTypes, { toType, arrayOf, shape } from 'vue-types'
 
-type typeofVueTypes = typeof VueTypes
-interface VueTypesCustom extends typeofVueTypes {
-  adult: VueTypeDef<number>
+interface UserData {
+  name: string
+  age: number
 }
 
-const CustomTypes = VueTypes.extend<VueTypesCustom>({
-  name: 'adult',
-  getter: true,
-  type: Number,
-  validator(v) {
-    return v >= 18
-  },
-})
+class CustomTypes extends VueTypes {
+  static get adult() {
+    return toType('adult', {
+      type: Number,
+      validator(v) {
+        return v >= 18
+      },
+    })
+  }
+}
 
-var User = {
-  template: '<li><strong>{{ name }}</strong> ({{ age }})</li>',
+const User = defineComponent({
+  setup(props) {
+    return () => h('li', [h('strong', [props.name]), props.age])
+  },
   props: {
     name: CustomTypes.string.isRequired,
     age: CustomTypes.adult,
   },
-}
+})
 
-var UserList = {
-  template: `
-    <ul>
-      <User v-for="user in users" :name="user.name" :age="user.age"  :key="user.name" />
-    </ul>
-    `,
+const UserList = defineComponent({
+  setup(props) {
+    return () =>
+      h(
+        'ul',
+        props.users.map((user) => h(User, { ...user, key: user.name })),
+      )
+  },
   props: {
-    users: VueTypes.arrayOf(VueTypes.shape(User.props)),
+    users: arrayOf(shape<UserData>(User.props)).isRequired,
   },
-  components: {
-    User,
-  },
-}
+})
 
-new Vue({
-  el: '#app',
-  template:
-    '<section><h1>A list of users:</h1><UserList :users="users" /></section>',
-  data: {
-    users: [
+createApp({
+  setup() {
+    const users: UserData[] = [
       {
         name: 'John',
         age: 20,
@@ -55,9 +55,8 @@ new Vue({
         name: 'Jack',
         age: 18,
       },
-    ],
+    ]
+    return () =>
+      h('section', [h('h1', ['A list of users']), h(UserList, { users })])
   },
-  components: {
-    UserList,
-  },
-})
+}).mount('#app')
