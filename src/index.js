@@ -224,23 +224,26 @@ const VueTypes = {
 
     let hasCustomValidators = false
 
-    const nativeChecks = arr.reduce((ret, type) => {
+    let nativeChecks = arr.reduce((ret, type) => {
       if (isPlainObject(type)) {
         if (type._vueTypes_name === 'oneOf') {
           return ret.concat(type.type || [])
         }
+        if (isFunction(type.validator)) {
+          hasCustomValidators = true
+        }
         if (type.type) {
           if (isArray(type.type)) return ret.concat(type.type)
           ret.push(type.type)
-        }
-        if (isFunction(type.validator)) {
-          hasCustomValidators = true
         }
         return ret
       }
       ret.push(type)
       return ret
     }, [])
+
+    // remove duplicates
+    nativeChecks = nativeChecks.filter((t, i) => nativeChecks.indexOf(t) === i)
 
     if (!hasCustomValidators) {
       // we got just native objects (ie: Array, Object)

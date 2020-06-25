@@ -669,13 +669,6 @@ describe('VueTypes', () => {
       expect(spy.calls.length).toBe(0)
     })
 
-    it('should use the custom type creator for mixed (native, VuePropTypes) options', () => {
-      const customType = VueTypes.oneOfType(mixedTypes)
-
-      expect(spy).toHaveBeenCalled()
-      expect(customType).toExcludeKey('type')
-    })
-
     it('should validate custom types with complex shapes', () => {
       const customType = VueTypes.oneOfType(complexTypes)
       const validator = forceNoContext(customType.validator)
@@ -949,6 +942,8 @@ describe('VueTypes', () => {
         getter: true,
         type: VueTypes.oneOfType([String, VueTypes.routerLocation]),
       })
+
+      console.log(VueTypes.oneOfType([String, VueTypes.routerLocation]))
 
       const type = VueTypes.routerTo
 
