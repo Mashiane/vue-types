@@ -51,3 +51,4 @@ Icon
 .Spotlight-V100
 .Trashes
 dist
+examples/**/dist/
