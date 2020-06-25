@@ -51,4 +51,6 @@ Icon
 .Spotlight-V100
 .Trashes
 dist
+es
+umd
 examples/**/dist/
