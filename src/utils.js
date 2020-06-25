@@ -26,6 +26,14 @@ export function getNativeType(value) {
 export function noop() {}
 
 /**
+ * A function that returns its first argument
+ *
+ * @param {*} arg
+ * @returns {*}
+ */
+export const identity = (arg) => arg
+
+/**
  * A function that always returns true
  */
 export const stubTrue = () => true
@@ -203,7 +211,9 @@ export function validateType(type, value, silent = false) {
       return valid
     }
     if (isArray(typeToCheck.type)) {
-      valid = typeToCheck.type.some((type) => validateType(type, value, true))
+      valid = typeToCheck.type.some(
+        (type) => validateType(type, value, true) === true,
+      )
       expectedType = typeToCheck.type.map((type) => getType(type)).join(' or ')
     } else {
       expectedType = getType(typeToCheck)
@@ -226,33 +236,41 @@ export function validateType(type, value, silent = false) {
   }
 
   if (!valid) {
-    silent === false &&
-      warn(`${namePrefix}value "${value}" should be of type "${expectedType}"`)
-    return false
+    const msg = `${namePrefix}value "${value}" should be of type "${expectedType}"`
+    if (silent === false) {
+      warn(msg)
+      return valid
+    }
+    return msg
   }
 
   if (
     hasOwn.call(typeToCheck, 'validator') &&
     isFunction(typeToCheck.validator)
   ) {
-    // swallow warn
-    let oldWarn
-    if (silent) {
-      oldWarn = warn
-      warn = noop
+    const oldWarn = warn
+    const warnLog = []
+    warn = (msg) => {
+      warnLog.push(msg)
     }
 
     valid = typeToCheck.validator(value)
-    oldWarn && (warn = oldWarn)
+    warn = oldWarn
 
-    if (!valid && silent === false)
-      warn(`${namePrefix}custom validation failed`)
-    return valid
+    if (!valid) {
+      const msg = warnLog.length > 0 ? '* ' + warnLog.join('\n * ') : ''
+      warnLog.length = 0
+      if (silent === false) {
+        msg && warn(msg)
+        return valid
+      }
+      return msg
+    }
   }
   return valid
 }
 
-let warn = noop
+let warn = identity
 
 if (process.env.NODE_ENV !== 'production') {
   const hasConsole = typeof console !== 'undefined'
@@ -261,7 +279,7 @@ if (process.env.NODE_ENV !== 'production') {
         // eslint-disable-next-line no-console
         Vue.config.silent === false && console.warn(`[VueTypes warn]: ${msg}`)
       }
-    : noop
+    : identity
 }
 
 export { warn }

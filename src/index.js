@@ -229,15 +229,13 @@ const VueTypes = {
         if (type._vueTypes_name === 'oneOf') {
           return ret.concat(type.type || [])
         }
-        if (isFunction(type.validator)) {
-          hasCustomValidators = true
-          return ret
-        }
         if (type.type) {
           if (isArray(type.type)) return ret.concat(type.type)
           ret.push(type.type)
         }
-
+        if (isFunction(type.validator)) {
+          hasCustomValidators = true
+        }
         return ret
       }
       ret.push(type)
@@ -252,25 +250,19 @@ const VueTypes = {
       })
     }
 
-    const typesStr = arr
-      .map((type) => {
-        if (type && isArray(type.type)) {
-          return type.type.map(getType)
-        }
-        return getType(type)
-      })
-      .reduce((ret, type) => ret.concat(isArray(type) ? type : [type]), [])
-      .join('", "')
-
-    return this.custom(function oneOfType(value) {
-      const valid = arr.some((type) => {
-        if (type._vueTypes_name === 'oneOf') {
-          return type.type ? validateType(type.type, value, true) : true
-        }
-        return validateType(type, value, true)
-      })
-      if (!valid) warn(`oneOfType - value type should be one of "${typesStr}"`)
-      return valid
+    return toType('oneOfType', {
+      type: nativeChecks,
+      validator(value) {
+        const valid = arr.some((type) => {
+          const t = type._vueTypes_name === 'oneOf' ? type.type || null : type
+          return validateType(t, value, true) === true
+        })
+        if (!valid)
+          warn(
+            `oneOfType - value "${value}" does not match any of the passed-in validators.`,
+          )
+        return valid
+      },
     })
   },
 
@@ -319,22 +311,38 @@ const VueTypes = {
           requiredKeys.length > 0 &&
           requiredKeys.some((req) => valueKeys.indexOf(req) === -1)
         ) {
-          warn(
-            `shape - at least one of required properties "${requiredKeys.join(
-              '", "',
-            )}" is not present`,
+          const missing = requiredKeys.filter(
+            (req) => valueKeys.indexOf(req) === -1,
           )
+          if (missing.length === 1) {
+            warn(`shape - required property "${missing[0]}" is not defined.`)
+          } else {
+            warn(
+              `shape - required properties "${missing.join(
+                '", "',
+              )}" are not defined.`,
+            )
+          }
           return false
         }
 
         return valueKeys.every((key) => {
           if (keys.indexOf(key) === -1) {
             if (this._vueTypes_isLoose === true) return true
-            warn(`shape - object is missing "${key}" property`)
+            warn(
+              `shape - shape definition does not include a "${key}" property. Allowed keys: "${keys.join(
+                '", "',
+              )}".`,
+            )
             return false
           }
           const type = obj[key]
-          return validateType(type, value[key])
+
+          const valid = validateType(type, value[key], true)
+          if (typeof valid === 'string') {
+            warn(`shape - "${key}" property validation error:\n * ${valid}`)
+          }
+          return valid === true
         })
       },
     })
@@ -361,7 +369,7 @@ setDefaults(VueTypes)
 
 VueTypes.utils = {
   validate(value, type) {
-    return validateType(type, value, true)
+    return validateType(type, value, true) === true
   },
   toType,
 }
