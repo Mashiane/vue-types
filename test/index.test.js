@@ -631,7 +631,6 @@ describe('VueTypes', () => {
     }
 
     const nativeTypes = [Number, Array, MyClass]
-    const mixedTypes = [Number, VueTypes.array, VueTypes.integer]
     const complexTypes = [
       VueTypes.oneOf([0, 1, 'string']),
       VueTypes.shape({ id: Number }),
@@ -942,8 +941,6 @@ describe('VueTypes', () => {
         getter: true,
         type: VueTypes.oneOfType([String, VueTypes.routerLocation]),
       })
-
-      console.log(VueTypes.oneOfType([String, VueTypes.routerLocation]))
 
       const type = VueTypes.routerTo
 
