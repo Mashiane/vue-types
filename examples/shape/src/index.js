@@ -6,17 +6,35 @@ var Model = {
   props: {
     model: VueTypes.shape({
       id: VueTypes.string.isRequired,
-      isNew: VueTypes.bool
-    }).isRequired
+      isNew: VueTypes.bool,
+    }).isRequired,
   },
   computed: {
-    isNew () {
+    isNew() {
       return this.model.isNew ? '- new' : ''
-    }
-  }
+    },
+  },
 }
 
 new Vue({
+  components: {
+    Model,
+  },
+  data: {
+    models: [],
+  },
+  methods: {
+    addModel() {
+      const newId = 'model-' + this.models.length
+      this.models.forEach((model) => {
+        model.isNew = false
+      })
+      this.models.push({
+        id: newId,
+        isNew: true,
+      })
+    },
+  },
   template: `
     <section>
       <h1>A list of models</h1>
@@ -24,22 +42,4 @@ new Vue({
       <ul><Model v-for="model in models" :model="model" :key="model.id" /></ul>
     </section>
   `,
-  data: {
-    models: []
-  },
-  components: {
-    Model
-  },
-  methods: {
-    addModel () {
-      const newId = 'model-' + this.models.length
-      this.models.forEach((model) => {
-        model.isNew = false
-      })
-      this.models.push({
-        id: newId,
-        isNew: true
-      })
-    }
-  }
 }).$mount('#app')

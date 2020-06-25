@@ -5,17 +5,17 @@ VueTypes.extend({
   name: 'adult',
   getter: true,
   type: Number,
-  validator (v) {
+  validator(v) {
     return v >= 18
-  }
+  },
 })
 
 var User = {
   template: '<li><strong>{{ name }}</strong> ({{ age }})</li>',
   props: {
     name: VueTypes.string.isRequired,
-    age: VueTypes.adult
-  }
+    age: VueTypes.adult,
+  },
 }
 
 var UserList = {
@@ -25,31 +25,34 @@ var UserList = {
     </ul>
     `,
   props: {
-    users: VueTypes.arrayOf(
-      VueTypes.shape(User.props)
-    )
+    users: VueTypes.arrayOf(VueTypes.shape(User.props)),
   },
   components: {
-    User
-  }
+    User,
+  },
 }
 
 new Vue({
   el: '#app',
-  template: '<section><h1>A list of users:</h1><UserList :users="users" /></section>',
-  data: {
-    users: [{
-      name: 'John',
-      age: 20
-    }, {
-      name: 'Jane',
-      age: 30
-    }, {
-      name: 'Jack',
-      age: 18
-    }]
-  },
   components: {
-    UserList
-  }
+    UserList,
+  },
+  data: {
+    users: [
+      {
+        name: 'John',
+        age: 20,
+      },
+      {
+        name: 'Jane',
+        age: 30,
+      },
+      {
+        name: 'Jack',
+        age: 18,
+      },
+    ],
+  },
+  template:
+    '<section><h1>A list of users:</h1><UserList :users="users" /></section>',
 })
