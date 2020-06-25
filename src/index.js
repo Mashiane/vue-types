@@ -232,7 +232,7 @@ const VueTypes = {
         if (isFunction(type.validator)) {
           hasCustomValidators = true
         }
-        if (type.type) {
+        if (typeof type.type !== 'undefined') {
           if (isArray(type.type)) return ret.concat(type.type)
           ret.push(type.type)
         }
